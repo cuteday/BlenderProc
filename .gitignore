@@ -13,9 +13,11 @@ resources/blenderkit
 resources/IKEA
 resources/pix3d
 *.blend1
-.vscode
+.vscode/
 *.pyc
 *.swp
 docs/build/
 !docs/source/index.rst
 docs/source/*rst
+front3d/
+.DS_Store

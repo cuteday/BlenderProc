@@ -203,6 +203,7 @@ class RendererInterface(Module):
         bpy.context.scene.render.resolution_percentage = 100
         # Lightning settings to reduce training time
         bpy.context.scene.render.engine = 'CYCLES'
+        #bpy.context.scene.render.engine = 'BLENDER_EEVEE'
 
         # Make sure there is no denoiser active
         self._disable_all_denoiser()
@@ -250,7 +251,7 @@ class RendererInterface(Module):
         bpy.context.scene.cycles.transmission_bounces = self.config.get_int("transmission_bounces", 0)
         bpy.context.scene.cycles.transparent_max_bounces = self.config.get_int("transparency_bounces", 8)
         bpy.context.scene.cycles.volume_bounces = self.config.get_int("volume_bounces", 0)
-
+        
         bpy.context.scene.cycles.debug_bvh_type = "STATIC_BVH"
         bpy.context.scene.cycles.debug_use_spatial_splits = True
         # Setting use_persistent_data to True makes the rendering getting slower and slower (probably a blender bug)
@@ -347,6 +348,9 @@ class RendererInterface(Module):
                 bpy.ops.render.render(animation=True, write_still=True)
             # Revert changes
             bpy.context.scene.frame_end += 1
+    
+        if self.config.get_bool("render_eevee", False):
+            self._write_eevee_to_file()
 
     def add_alpha_channel_to_textures(self, blurry_edges):
         """
@@ -523,6 +527,18 @@ class RendererInterface(Module):
         output_file.location.x = space_between_nodes_x * 15
         links.new(combine_rgba.outputs["Image"], output_file.inputs["Image"])
 
+    def _configure_eevee(self):
+        bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+
+    def _write_eevee_to_file(self):
+        self._configure_eevee()        
+        bpy.context.scene.render.filepath = os.path.join(self._determine_output_dir(),
+                                                        self.config.get_string("eevee_output_file_prefix", "eevee_"))
+        if bpy.context.scene.frame_end != bpy.context.scene.frame_start:
+            bpy.context.scene.frame_end -= 1
+            bpy.ops.render.render(animation=True, write_still=True)
+
+
 
     def _register_output(self, default_prefix, default_key, suffix, version, unique_for_camposes=True,
                          output_key_parameter_name="output_key", output_file_prefix_parameter_name="output_file_prefix"):
@@ -565,3 +581,11 @@ class RendererInterface(Module):
                 "version": "2.0.0",
                 "stereo": use_stereo
             })
+        if self.config.get_bool("render_eevee", False):
+            self._add_output_entry({
+                "key": self.config.get_string("eevee_output_key", "eevee"),
+                "path": os.path.join(self._determine_output_dir(),
+                                     self.config.get_string("eevee_output_file_prefix", "eevee_")) + "%04d" + ".png",
+                "version": "2.0.0",
+                "stereo": use_stereo
+            })            
