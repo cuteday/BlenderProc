@@ -1,5 +1,9 @@
 # BlenderProc
 
+## About This Fork
+This fork adds the option of rendering with EEVEE(blender's realtime rendering engine).
+
+
 <p align="center">
 <img src="readme.jpg" alt="Front readme image" width=500>
 </p>
