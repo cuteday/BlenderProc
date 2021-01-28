@@ -12,3 +12,4 @@ class BlenderWriter(WriterInterface):
     def run(self):
         blend_path = os.path.join(self._determine_output_dir(False), "scene.blend")
         bpy.ops.wm.save_as_mainfile(filepath=blend_path)
+        

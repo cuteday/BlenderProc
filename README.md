@@ -1,8 +1,9 @@
-# BlenderProc
-
 ## About This Fork
-This fork adds the option of rendering with EEVEE(blender's realtime rendering engine).
+Adds the option of rendering with EEVEE(blender's realtime rendering engine). \
+Support saving the scene as .blend file at the end of pipeline.
 
+
+# BlenderProc
 
 <p align="center">
 <img src="readme.jpg" alt="Front readme image" width=500>

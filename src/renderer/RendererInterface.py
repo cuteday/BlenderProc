@@ -530,6 +530,33 @@ class RendererInterface(Module):
     def _configure_eevee(self):
         bpy.context.scene.render.engine = 'BLENDER_EEVEE'
 
+        if self.config.get_bool("eevee_headlight", False):
+            # create a headlight above all ceilings as the principle light source in the scene
+            ceilings = [obj for obj in bpy.data.objects if "ceiling" in obj.name.lower()]
+            
+            if len(ceilings) == 0:
+                raise Exception("No ceilings detected in the scene!")
+            
+            xs = [v.co.x for obj in ceilings for v in obj.data.vertices]
+            ys = [v.co.y for obj in ceilings for v in obj.data.vertices]
+            zs = [v.co.z for obj in ceilings for v in obj.data.vertices]
+
+            x_min, x_max = min(xs), max(xs)
+            y_min, y_max = min(ys), max(ys)
+            z = max(zs)
+            x = (x_max + x_min) / 2
+            y = (y_max + y_min) / 2
+
+            power = self.config.get_float("headlight_power", 450.0)
+            bpy.ops.object.light_add(type='AREA', location=(x, y, z))
+            light = bpy.context.object.data
+            light.shape = 'RECTANGLE'
+            light.size = x_max - x_min
+            light.size_y = y_max - y_min
+            light.energy = power
+            light.use_shadow = False
+
+
     def _write_eevee_to_file(self):
         self._configure_eevee()        
         bpy.context.scene.render.filepath = os.path.join(self._determine_output_dir(),
