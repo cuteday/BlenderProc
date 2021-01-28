@@ -453,3 +453,18 @@ class RendererUtility:
         bpy.context.scene.cycles.rolling_shutter_type = rolling_shutter_type
         bpy.context.scene.cycles.rolling_shutter_duration = rolling_shutter_length
 
+    @staticmethod
+    def enable_eevee_output(output_dir, file_prefix="eevee_", output_key="eevee", use_headlight=False, headlight_power=450.0):
+        bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+        
+        bpy.context.scene.render.filepath = os.path.join(output_dir, file_prefix)
+        if bpy.context.scene.frame_end != bpy.context.scene.frame_start:
+            bpy.context.scene.frame_end -= 1
+            bpy.ops.render.render(animation=True, write_still=True)
+
+        if output_key is not None:
+            Utility.add_output_entry({
+                "key": output_key,
+                "path": os.path.join(output_dir, file_prefix + "%04d" + ".png"),
+                "version": "2.0.0",
+            })  
