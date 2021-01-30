@@ -167,10 +167,10 @@ class RendererInterface(Module):
 
         RendererUtility.set_simplify_subdivision_render(self.config.get_int("simplify_subdivision_render", 3))
 
-        RendererUtility.set_light_bounces(self.config.get_int("diffuse_bounces", 3),
-                                          self.config.get_int("glossy_bounces", 0),
-                                          self.config.get_int("ao_bounces_render", 3),
-                                          self.config.get_int("max_bounces", 3),
+        RendererUtility.set_light_bounces(self.config.get_int("diffuse_bounces", 30),
+                                          self.config.get_int("glossy_bounces", 30),
+                                          self.config.get_int("ao_bounces_render", 30),
+                                          self.config.get_int("max_bounces", 30),
                                           self.config.get_int("transmission_bounces", 0),
                                           self.config.get_int("transparency_bounces", 8),
                                           self.config.get_int("volume_bounces", 0))

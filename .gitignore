@@ -21,3 +21,4 @@ docs/build/
 docs/source/*rst
 front3d/
 .DS_Store
+resources/haven/hdris

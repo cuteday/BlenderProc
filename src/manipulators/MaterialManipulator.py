@@ -180,6 +180,7 @@ class MaterialManipulator(Module):
 
         for material in materials:
             if not material.use_nodes:
+                continue
                 raise Exception("This material does not use nodes -> not supported here.")
 
             if op_mode == "once_for_each":
