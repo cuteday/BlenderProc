@@ -14,9 +14,11 @@ class EeveeRenderer(RendererInterface):
         RendererInterface.__init__(self, config)
         self._use_headlight = config.get_bool("eevee_headlight", False)
         self._headlight_power = config.get_float("headlight_power", 450.0)
+        self._taa_samples = config.get_int("taa_samples", 64)
 
     def _configure_eevee(self):
         bpy.context.scene.render.engine = 'BLENDER_EEVEE'
+        bpy.context.scene.eevee.taa_render_samples = self._taa_samples
 
         if self._use_headlight:
             # create a headlight above all ceilings as the principle light source in the scene
