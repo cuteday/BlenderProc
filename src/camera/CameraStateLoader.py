@@ -37,8 +37,9 @@ class CameraStateLoader(CameraInterface):
         if not os.path.exists(self.path_cam_poses) or not os.path.isdir(self.path_cam_poses):
             raise Exception("Specified camera poses path not exist!")
         
+        print('Loading camera poses from {}'.format(self.path_cam_poses))
         if not os.path.isdir(self.path_cam_poses):
             self.add_campose_from_file(self.path_cam_poses)
         else:
-            for f in os.listdir(self.path_cam_poses):
+            for f in sorted(os.listdir(self.path_cam_poses)):
                 self.add_campose_from_file(os.path.join(self.path_cam_poses, f))
