@@ -1,8 +1,3 @@
-## About This Fork
-Adds the option of rendering with EEVEE. (`renderer.EeveeRenderer`) \
-Support saving the scene as .blend file at the end of pipeline (`writer.BlenderWriter`).
-
-
 # BlenderProc
 
 <p align="center">
