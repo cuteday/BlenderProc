@@ -16,7 +16,7 @@ class CameraStateLoader(CameraInterface):
     """
 
     def __init__(self, config):
-        CameraInterface.__init__(config)
+        CameraInterface.__init__(self, config)
 
     @staticmethod 
     def add_campose_from_file(file_path):
