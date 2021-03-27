@@ -8,7 +8,7 @@ import mathutils
 from src.main.GlobalStorage import GlobalStorage
 from src.main.Module import Module
 from src.utility.RendererUtility import RendererUtility
-from src.utility.BlenderUtility import get_all_mesh_objects
+from src.utility.BlenderUtility import get_all_blender_mesh_objects
 from src.utility.Utility import Utility
 
 from src.utility.CuteRendererUtility import CuteRendererUtility
@@ -131,6 +131,9 @@ class RendererInterface(Module):
         * - normals_output_key
           - The key which is used for storing the normal in a merged file. Default: `"normal"`
           - string
+        * - render_diffuse_color
+          - If true, the diffuse color image are also rendered. Default: False
+          - bool
     """
 
     def __init__(self, config):
@@ -203,6 +206,13 @@ class RendererInterface(Module):
                 self._determine_output_dir(),
                 self.config.get_string("normals_output_file_prefix", "normals_"),
                 self.config.get_string("normals_output_key", "normals")
+            )
+
+        if self.config.get_bool("render_diffuse_color", False):
+            RendererUtility.enable_diffuse_color_output(
+                self._determine_output_dir(),
+                self.config.get_string("diffuse_color_output_file_prefix", "diffuse_"),
+                self.config.get_string("diffuse_color_output_key", "diffuse")
             )
 
         RendererUtility.set_output_format(file_format, enable_transparency=enable_transparency)
