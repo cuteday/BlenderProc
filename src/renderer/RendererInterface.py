@@ -11,6 +11,7 @@ from src.utility.RendererUtility import RendererUtility
 from src.utility.BlenderUtility import get_all_mesh_objects
 from src.utility.Utility import Utility
 
+from src.utility.CuteRendererUtility import CuteRendererUtility
 
 class RendererInterface(Module):
     """
@@ -184,6 +185,8 @@ class RendererInterface(Module):
 
         :param default_prefix: The default prefix of the output files.
         """
+        self._render_cute()         # do additional custom recepies
+
         if self.config.get_bool("render_distance", False):
             RendererUtility.enable_distance_output(
                 self._determine_output_dir(),
@@ -208,4 +211,38 @@ class RendererInterface(Module):
                 self._determine_output_dir(),
                 self.config.get_string(output_file_prefix_parameter_name, default_prefix),
                 self.config.get_string(output_key_parameter_name, default_key)
+            )
+
+    def _render_cute(self):
+        """
+            some additioal recipies added in cuteday's fork
+            use extra function to avoid consequent merging issues with upstream
+        """
+        if self.config.get_bool("render_noisy_image", False):
+            CuteRendererUtility.enable_diffuse_color_output(
+                self._determine_output_dir(),
+                self.config.get_string("noisy_image_output_file_prefix", "noisy_"),
+                self.config.get_string("noisy_image_output_key", "noisy")
+            )
+
+        if self.config.get_bool("render_diffuse_color", False):
+            CuteRendererUtility.enable_diffuse_color_output(
+                self._determine_output_dir(),
+                self.config.get_string("diffuse_color_output_file_prefix", "diffuse_"),
+                self.config.get_string("diffuse_color_output_key", "diffuse")
+            )
+
+        if self.config.get_bool("render_roughness", False):
+            CuteRendererUtility.enable_roughness_output(
+                self._determine_output_dir(),
+                self.config.get_string("roughness_output_file_prefix", "roughness_"),
+                self.config.get_string("roughness_output_key", "roughness")
+            )
+
+        if self.config.get_bool("render_lighting_pass", False):
+            CuteRendererUtility.enable_lighting_pass_output(
+                self._determine_output_dir(),
+                self.config.get_string("lighting_pass_output_file_prefix", "lighting_"),
+                self.config.get_string("lighting_pass_output_key", "lighting"),
+                self.config.get_list("lighting_pass_enabled", ["DiffDir", "DiffInd", "GlossDir", "GlossInd"])
             )

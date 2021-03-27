@@ -68,12 +68,7 @@ class EeveeRenderer(RendererInterface):
             "version": "2.0.0",
         })  
 
-        if self._render_diffuse_color:
-            CuteRendererUtility.enable_diffuse_color_output(
-                self._determine_output_dir(),
-                self.config.get_string("diffuse_color_output_file_prefix", "diffuse_"),
-                self.config.get_string("diffuse_color_output_key", "diffuse")
-            )
+        self._render_cute()
         
         if bpy.context.scene.frame_end != bpy.context.scene.frame_start:
             bpy.context.scene.frame_end -= 1
