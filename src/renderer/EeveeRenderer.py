@@ -20,14 +20,17 @@ class EeveeRenderer(RendererInterface):
         self._use_headlight = config.get_bool("eevee_headlight", False)
         self._headlight_power = config.get_float("headlight_power", 500.0)
         self._taa_samples = config.get_int("taa_samples", 64)
+        self._shadow_light_threshold = config.get_float("shadow_light_threshold", 0.00)
         self._render_diffuse_color = config.get_bool("render_diffuse_color", False)
         self._render_roughness = config.get_bool("render_roughness", False)
         self._render_metalness = config.get_bool("render_metalness", False)
         self._render_panorama = config.get_bool("render_panorama", False)
+        self._enable_point_light = config.get_bool("enable_point_light", False)
 
     def _configure_eevee(self):
         bpy.context.scene.render.engine = 'BLENDER_EEVEE'
         bpy.context.scene.eevee.taa_render_samples = self._taa_samples
+        bpy.context.scene.eevee.light_threshold = self._shadow_light_threshold
 
         if self._use_headlight:
             # create a headlight above all ceilings as the principle light source in the scene
@@ -56,6 +59,9 @@ class EeveeRenderer(RendererInterface):
             
     def run(self):
         self._configure_eevee()
+
+        if self._enable_point_light:
+            CuteRendererUtility.enable_point_light(base_energy=120)
 
         output_dir = self._determine_output_dir()
         file_prefix = self.config.get_string("eevee_output_file_prefix", "eevee_")

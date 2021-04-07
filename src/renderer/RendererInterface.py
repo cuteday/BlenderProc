@@ -218,19 +218,22 @@ class RendererInterface(Module):
             some additioal recipies added in cuteday's fork
             use extra function to avoid consequent merging issues with upstream
         """
+        if self.config.get_bool("enable_point_light", False):
+          CuteRendererUtility.enable_point_light(base_energy=120)
+
         if self.config.get_bool("render_noisy_image", False):
-            CuteRendererUtility.enable_diffuse_color_output(
+            CuteRendererUtility.enable_noisy_image_output(
                 self._determine_output_dir(),
                 self.config.get_string("noisy_image_output_file_prefix", "noisy_"),
                 self.config.get_string("noisy_image_output_key", "noisy")
             )
 
-        if self.config.get_bool("render_diffuse_color", False):
-            CuteRendererUtility.enable_diffuse_color_output(
-                self._determine_output_dir(),
-                self.config.get_string("diffuse_color_output_file_prefix", "diffuse_"),
-                self.config.get_string("diffuse_color_output_key", "diffuse")
-            )
+        # if self.config.get_bool("render_diffuse_color", False):
+        #     CuteRendererUtility.enable_diffuse_color_output(
+        #         self._determine_output_dir(),
+        #         self.config.get_string("diffuse_color_output_file_prefix", "diffuse_"),
+        #         self.config.get_string("diffuse_color_output_key", "diffuse")
+        #     )
 
         if self.config.get_bool("render_roughness", False):
             CuteRendererUtility.enable_roughness_output(
@@ -246,3 +249,5 @@ class RendererInterface(Module):
                 self.config.get_string("lighting_pass_output_key", "lighting"),
                 self.config.get_list("lighting_pass_enabled", ["DiffDir", "DiffInd", "GlossDir", "GlossInd"])
             )
+
+        
