@@ -74,7 +74,8 @@ def vis_data(key, data, full_hdf5_data, file_label):
                 print("Warning: The data with key '" + key + "' has more than one channel which would not allow using a jet color map. Therefore only the first channel is visualized.")
             data = data[:, :, 0]
         
-        plt.imshow(data, cmap='jet')
+        plt.imshow(data, cmap='gray')
+        #plt.imshow(data, cmap='jet')
     elif key in args.rgb_keys:
         plt.imshow(data)
 

@@ -61,7 +61,7 @@ class EeveeRenderer(RendererInterface):
         self._configure_eevee()
 
         if self._enable_point_light:
-            CuteRendererUtility.enable_point_light(base_energy=120)
+            CuteRendererUtility.enable_point_light(base_light_energy=120)
 
         output_dir = self._determine_output_dir()
         file_prefix = self.config.get_string("eevee_output_file_prefix", "eevee_")

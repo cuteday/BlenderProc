@@ -181,36 +181,67 @@ class CuteRendererUtility:
         })
 
     @staticmethod
-    def enable_point_light(base_energy = 120):
+    def enable_point_light(base_light_energy = 120):
         """
             this randomly puts point light sources slightly below the ceiling
-            edit: at the [center] of the ceiling, where center is the center of ceiling's AABB
+            
+            Edit #1: 
+                at the [center] of the ceiling, where center is the center of ceiling's AABB
+            
+            Edit #2: 
+                now we try to optimize the light settings
+                by putting a point light at the center of a triangle, every 2 triangles.
+                The energy of this point light is dependent to the triangle's area.
+                When there's odd number of triangles inside a ceiling, the last triangle will always have a point light.
         """
+
+        def determine_light_energy(area,
+                base_energy=50.0, base_area=10.0, area_factor=4.0, clamp_min=30.0, clamp_max=150.0):
+            """ Heuristicly determines the energy of a light base on room area """
+            augment_energy = area_factor * (area - base_area)
+            energy = base_energy + augment_energy
+            energy = min(max(clamp_min, energy), clamp_max)
+            return energy
+
         ceilings = [obj for obj in bpy.data.objects if "ceiling" in obj.name.lower()]
+        if len(ceilings) == 0:
+            raise Exception('Adding point lights: No ceilings detected, no light sources added')
 
-        for ceiling in ceilings:
-            xs = [v.co.x for v in ceiling.data.vertices]
-            ys = [v.co.y for v in ceiling.data.vertices]
-            zs = [v.co.z for v in ceiling.data.vertices]
+        for iceiling, ceiling in enumerate(ceilings):
 
-            x_min, x_max = min(xs), max(xs)
-            y_min, y_max = min(ys), max(ys)
+            triangles = ceiling.data.polygons
+            for iface, face in enumerate(triangles):
+                if iface % 3 != 0:  # a point light for 2 triangle faces
+                    continue
+                area = face.area
+                center = face.center
+                if iface < len(triangles) - 1:
+                    area += triangles[iface + 1].area
+                    # center = (center + triangles[iface + 1].center) / 2
+                
+                bpy.ops.object.light_add(type='POINT', location=(center.x, center.y, center.z-0.1))
+                light = bpy.context.object.data
+                light.energy = determine_light_energy(area, base_light_energy)
+                # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
+                light.use_shadow = False
+                light.shadow_buffer_clip_start = 0.60
+                light.shadow_buffer_bias = 0.20
 
-            x_center = (x_max + x_min) / 2
-            y_center = (y_max + y_min) / 2
-            z_center = min(zs) - 1e-1
+            # xs = [v.co.x for v in ceiling.data.vertices]
+            # ys = [v.co.y for v in ceiling.data.vertices]
+            # zs = [v.co.z for v in ceiling.data.vertices]
+            # x_min, x_max = min(xs), max(xs)
+            # y_min, y_max = min(ys), max(ys)
+            # x_center = (x_max + x_min) / 2
+            # y_center = (y_max + y_min) / 2
+            # z_center = min(zs) - 0.20
+            # area = (x_max - x_min) * (y_max - y_min)
 
-            area = (x_max - x_min) * (y_max - y_min)
-
-            bpy.ops.object.light_add(type='POINT', location=(x_center, y_center, z_center))
-            light = bpy.context.object.data
-
-            augment_energy = 4 * (area - 20)
-            augment_energy = min(max(-40, augment_energy), 80)
-            light.energy = base_energy# + augment_energy
-
-            # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
-            light.use_shadow = False
-            light.shadow_buffer_clip_start = 0.60
-            light.shadow_buffer_bias = 0.20
+            # bpy.ops.object.light_add(type='POINT', location=(x_center, y_center, z_center))
+            # light = bpy.context.object.data
+            # light.energy = determine_light_energy(area, base_light_energy)
+            # # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
+            # light.use_shadow = False
+            # light.shadow_buffer_clip_start = 0.60
+            # light.shadow_buffer_bias = 0.20
             
