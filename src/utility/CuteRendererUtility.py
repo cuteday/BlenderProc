@@ -191,11 +191,6 @@ class CuteRendererUtility:
                 When there's odd number of triangles inside a ceiling, the last triangle will always have a point light.
         """
 
-        # we should not use this to determine ceiling since there exists ceiling with height
-        # def is_flat_object(obj):
-        #     zs = [v.co.z for v in ceiling.data.vertices]
-        #     return max(zs) - min(zs) < 2e-2
-
         def is_flat_triangle(tri, obj):
             zs = [obj.data.vertices[v].co.z for v in tri.vertices]
             return max(zs) - min(zs) < 2e-2
@@ -211,7 +206,17 @@ class CuteRendererUtility:
             energy = min(max(clamp_min, energy), clamp_max)
             return energy
 
+        def determine_light_radius(area,
+                base_radius=0.25, base_area=20.0, area_factor=0.005, clamp_min=0.25, clamp_max=0.50):
+            radius = area_factor * (area - base_area) + base_radius
+            radius = min(max(clamp_min, radius), clamp_max)
+            return radius
+
         def add_light_full_ceiling(ceiling):
+            """
+                returns a light for the current ceiling:
+                (location, energy, radius)
+            """
             xs = [v.co.x for v in ceiling.data.vertices]
             ys = [v.co.y for v in ceiling.data.vertices]
             zs = [v.co.z for v in ceiling.data.vertices]
@@ -219,55 +224,72 @@ class CuteRendererUtility:
             y_min, y_max = min(ys), max(ys)
             x_center = (x_max + x_min) / 2
             y_center = (y_max + y_min) / 2
-            z_center = min(zs) - 0.20
+            z_center = min(zs)
 
             area = (x_max - x_min) * (y_max - y_min)
             #area = calc_object_surface_area(ceiling, flat=True)
-            if area < 1.0: return
+            if area < 1.0: return None
 
-            bpy.ops.object.light_add(type='POINT', location=(x_center, y_center, z_center))
-            light = bpy.context.object.data
-            light.energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=100, clamp_max=500)
-            # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
-            light.use_shadow = False
-            light.shadow_buffer_clip_start = 0.60
-            light.shadow_buffer_bias = 0.20       
+            #radius = 0.0
+            radius = determine_light_radius(area)
+            energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=120, clamp_max=500)
+            return [[x_center, y_center, z_center - radius], energy, radius]
 
-        def add_light_triangles(ceiling):
-            # Pros:
-            #       more stable light when in a room with a big, not-rectangular ceiling
-            # Cons:
-            #       for probably more lights per room, the shadow mapping may be more inaccurate
-            #       more light sources bring more computational cost
-            total_area = calc_object_surface_area(ceiling, flat=True)
-            if total_area < 1.0: return 
+        # def add_light_triangles(ceiling):
+        #     # Pros:
+        #     #       more stable light when in a room with a big, not-rectangular ceiling
+        #     # Cons:
+        #     #       for probably more lights per room, the shadow mapping may be more inaccurate
+        #     #       more light sources bring more computational cost
+        #     total_area = calc_object_surface_area(ceiling, flat=True)
+        #     if total_area < 1.0: return 
 
-            # we discard ceiling faces which is too small or not flat (parallel to the floor xy-plane)
-            triangles = [tri for tri in ceiling.data.polygons if tri.area >= 1.0 and is_flat_triangle(tri, ceiling)]
-            for iface, face in enumerate(triangles):
-                if iface % 2 != 0:  # a point light for 2 triangle faces
-                    continue
-                area = face.area
-                center = face.center
-                if iface < len(triangles) - 1:
-                    area += triangles[iface + 1].area
-                    # center = (center + triangles[iface + 1].center) / 2
+        #     # we discard ceiling faces which is too small or not flat (parallel to the floor xy-plane)
+        #     triangles = [tri for tri in ceiling.data.polygons if tri.area >= 1.0 and is_flat_triangle(tri, ceiling)]
+        #     for iface, face in enumerate(triangles):
+        #         if iface % 2 != 0:  # a point light for 2 triangle faces
+        #             continue
+        #         area = face.area
+        #         center = face.center
+        #         if iface < len(triangles) - 1:
+        #             area += triangles[iface + 1].area
+        #             # center = (center + triangles[iface + 1].center) / 2
 
-                bpy.ops.object.light_add(type='POINT', location=(center.x, center.y, center.z-0.20))
-                light = bpy.context.object.data
-                light.energy = determine_light_energy(area, base_energy=100.0, base_area=10.0, area_factor=8.0, clamp_min=35, clamp_max=450)
-                # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
-                light.use_shadow = False
-                light.shadow_buffer_clip_start = 0.60
-                light.shadow_buffer_bias = 0.20
+        #         energy = determine_light_energy(area, base_energy=100.0, base_area=10.0, area_factor=8.0, clamp_min=35, clamp_max=450)
+        #         ((center.x, center.y, center.z-0.20), energy, 0.25)
 
         ceilings = [obj for obj in bpy.data.objects if "ceiling" in obj.name.lower()]
         if len(ceilings) == 0:
             raise Exception('Adding point lights: No ceilings detected, no light sources added')
-
+        
+        lights = []
+        valid_lights = []
         for iceiling, ceiling in enumerate(ceilings):
-
             #add_light_triangles(ceiling)
-            add_light_full_ceiling(ceiling)
+            light = add_light_full_ceiling(ceiling)
+            if light is not None:
+                lights.append(light)
+
+        for light in lights:
+            valid = True
+            lx, ly, lz = light[0]
+            for vlight in valid_lights:
+                vx, vy, vz = vlight[0]
+                if abs(lx - vx) + abs(ly - vy) < 0.5:
+                    valid = False
+                    vlight[0][2] = min(vz, lz)      # we choose the lowest point light so it wont be occluded by the ceiling
+                    break
+            if valid:
+                valid_lights.append(light)
+
+        for vlight in valid_lights:
+            bpy.ops.object.light_add(type='POINT', location=vlight[0])
+            light = bpy.context.object.data
+            light.shadow_soft_size = vlight[2]
+            light.energy = vlight[1]
+            # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
+            light.use_shadow = True
+            light.shadow_buffer_clip_start = 0.70
+            light.shadow_buffer_bias = 0.20    
 
      

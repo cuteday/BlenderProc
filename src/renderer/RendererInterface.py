@@ -228,12 +228,12 @@ class RendererInterface(Module):
                 self.config.get_string("noisy_image_output_key", "noisy")
             )
 
-        # if self.config.get_bool("render_diffuse_color", False):
-        #     CuteRendererUtility.enable_diffuse_color_output(
-        #         self._determine_output_dir(),
-        #         self.config.get_string("diffuse_color_output_file_prefix", "diffuse_"),
-        #         self.config.get_string("diffuse_color_output_key", "diffuse")
-        #     )
+        if self.config.get_bool("render_diffuse_color", False):
+            CuteRendererUtility.enable_diffuse_color_output(
+                self._determine_output_dir(),
+                self.config.get_string("diffuse_color_output_file_prefix", "diffuse_"),
+                self.config.get_string("diffuse_color_output_key", "diffuse")
+            )
 
         if self.config.get_bool("render_roughness", False):
             CuteRendererUtility.enable_roughness_output(
