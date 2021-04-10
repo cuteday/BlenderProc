@@ -213,7 +213,7 @@ class CuteRendererUtility:
             return energy
 
         def determine_light_radius(area,
-                base_radius=0.30, base_area=20.0, area_factor=0.005, clamp_min=0.30, clamp_max=0.60):
+                base_radius=0.25, base_area=20.0, area_factor=0.005, clamp_min=0.25, clamp_max=0.50):
             radius = area_factor * (area - base_area) + base_radius
             radius = min(max(clamp_min, radius), clamp_max)
             return radius
@@ -238,7 +238,7 @@ class CuteRendererUtility:
 
             #radius = 0.0
             radius = determine_light_radius(area)
-            energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=100, clamp_max=450)
+            energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=80., clamp_max=400.)
             return [[x_center, y_center, z_center - radius], energy, radius]
 
         # def add_light_triangles(ceiling):
