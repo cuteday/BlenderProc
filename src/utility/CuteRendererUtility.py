@@ -15,8 +15,7 @@ class CuteRendererUtility:
         """
             output the roughness value of all textures
             using Shader AOV and composite passes
-            stored as `.png` file, as material roughness are loaded using `.png` as well,
-                using OPEN_EXR format will be unnecessary
+            We use the EXR format (half-precision float) for linear space output and better precision
 
             Edit 1: 
                 it seems that some shader aov operations can only do on UI mode,
@@ -76,7 +75,8 @@ class CuteRendererUtility:
         
         output_file = render_layer_tree.nodes.new('CompositorNodeOutputFile')
         output_file.base_path = output_dir
-        output_file.format.file_format = "PNG"
+        output_file.format.file_format = "OPEN_EXR"
+        output_file.format.color_depth = '16'
         output_file.file_slots.values()[0].path = file_prefix
         render_layer_links.new(final_output, output_file.inputs['Image']) 
 
@@ -92,7 +92,7 @@ class CuteRendererUtility:
 
     @staticmethod
     def enable_lighting_pass_output(output_dir, file_prefix="lighting_", output_key="lighting",
-            enabled_passes=["DiffDir", "DiffInd", "GlossDir", "GlossInd"]):
+            enabled_passes=["DiffDir", "DiffInd", "GlossDir", "GlossInd"], file_format='PNG'):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
@@ -120,6 +120,9 @@ class CuteRendererUtility:
             output_file = tree.nodes.new('CompositorNodeOutputFile')
             output_file.base_path = output_dir
             output_file.format.file_format = "PNG"
+            if 'exr' in file_format.lower():
+                output_file.format.file_format = "OPEN_EXR"
+                output_file.format.color_depth = '16'
             file_name = "{}{}_".format(file_prefix, p.lower())
             output_file.file_slots.values()[0].path = file_name
             links.new(final_output, output_file.inputs['Image'])
@@ -154,7 +157,7 @@ class CuteRendererUtility:
         })
 
     @staticmethod
-    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy"):
+    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG'):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
@@ -167,6 +170,9 @@ class CuteRendererUtility:
         output_file = tree.nodes.new('CompositorNodeOutputFile')
         output_file.base_path = output_dir
         output_file.format.file_format = "PNG"
+        if 'exr' in file_format.lower():
+            output_file.format.file_format = "OPEN_EXR"
+            output_file.format.color_depth = '16'
         output_file.file_slots.values()[0].path = file_prefix
         links.new(final_output, output_file.inputs['Image'])
         

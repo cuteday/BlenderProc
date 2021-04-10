@@ -225,7 +225,8 @@ class RendererInterface(Module):
             CuteRendererUtility.enable_noisy_image_output(
                 self._determine_output_dir(),
                 self.config.get_string("noisy_image_output_file_prefix", "noisy_"),
-                self.config.get_string("noisy_image_output_key", "noisy")
+                self.config.get_string("noisy_image_output_key", "noisy"),
+                self.config.get_string("noisy_image_output_format", "PNG"),
             )
 
         if self.config.get_bool("render_diffuse_color", False):
@@ -247,7 +248,8 @@ class RendererInterface(Module):
                 self._determine_output_dir(),
                 self.config.get_string("lighting_pass_output_file_prefix", "lighting_"),
                 self.config.get_string("lighting_pass_output_key", "lighting"),
-                self.config.get_list("lighting_pass_enabled", ["DiffDir", "DiffInd", "GlossDir", "GlossInd"])
+                self.config.get_list("lighting_pass_enabled", ["DiffDir", "DiffInd", "GlossDir", "GlossInd"]),
+                self.config.get_string("lighting_pass_output_format", "PNG")
             )
 
         
