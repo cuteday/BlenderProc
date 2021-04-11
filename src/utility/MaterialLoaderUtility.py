@@ -310,6 +310,9 @@ class MaterialLoaderUtility(object):
         :param output_node: Output node of the current material
         :return: bpy.types.Node: The newly constructed texture node
         """
+
+        return None  # We disable displacement map temporarily since Eevee doesn't support displacement nodes
+
         if os.path.exists(displacement_image_path):
             displacement_texture = MaterialLoaderUtility.create_image_node(nodes, displacement_image_path, True,
                                                                            MaterialLoaderUtility.x_texture_node,
