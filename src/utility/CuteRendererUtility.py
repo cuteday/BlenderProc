@@ -232,14 +232,17 @@ class CuteRendererUtility:
             y_center = (y_max + y_min) / 2
             z_center = min(zs)
 
+            x_corrected = x_max * 0.75 + x_min * 0.25
+            y_corrected = y_max * 0.75 + y_min * 0.25
+
             area = (x_max - x_min) * (y_max - y_min)
             #area = calc_object_surface_area(ceiling, flat=True)
             if area < 1.0: return None
 
             #radius = 0.0
             radius = determine_light_radius(area)
-            energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=80., clamp_max=400.)
-            return [[x_center, y_center, z_center - radius], energy, radius]
+            energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=80, clamp_max=400.)
+            return [[x_corrected, y_corrected, z_center - radius], energy, radius]
 
         # def add_light_triangles(ceiling):
         #     # Pros:
@@ -295,7 +298,7 @@ class CuteRendererUtility:
             light.energy = vlight[1]
             # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
             light.use_shadow = True
-            light.shadow_buffer_clip_start = 0.70
+            light.shadow_buffer_clip_start = 0.50
             light.shadow_buffer_bias = 0.20    
 
      
