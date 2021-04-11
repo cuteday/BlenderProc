@@ -368,3 +368,8 @@ class Front3DLoader(LoaderInterface):
                             rotation_mat = mathutils.Quaternion(child["rot"]).to_euler().to_matrix().to_4x4()
                             # transform it into the blender coordinate system and then to an euler
                             new_obj.rotation_euler = (blender_rot_mat @ rotation_mat).to_euler()
+
+                            if "ceiling lamp" in new_obj.name.lower() or "pendant lamp" in new_obj.name.lower():
+                                # We hide ceiling lamps to avoid incorrect shadow lamps
+                                new_obj.hide_render = True
+                                #new_obj.hide_viewport = True       # this cause error when selecting objects
