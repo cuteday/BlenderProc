@@ -32,6 +32,7 @@ class EeveeRenderer(RendererInterface):
         bpy.context.scene.eevee.taa_render_samples = self._taa_samples
         bpy.context.scene.eevee.light_threshold = self._shadow_light_threshold
         bpy.context.scene.eevee.use_shadow_high_bitdepth = True
+        bpy.context.scene.eevee.shadow_cube_size = '1024'
 
         if self._use_headlight:
             # create a headlight above all ceilings as the principle light source in the scene
