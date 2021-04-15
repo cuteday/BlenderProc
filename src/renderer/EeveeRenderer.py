@@ -20,7 +20,7 @@ class EeveeRenderer(RendererInterface):
         self._use_headlight = config.get_bool("eevee_headlight", False)
         self._headlight_power = config.get_float("headlight_power", 500.0)
         self._taa_samples = config.get_int("taa_samples", 64)
-        self._shadow_light_threshold = config.get_float("shadow_light_threshold", 0.05)
+        self._shadow_light_threshold = config.get_float("shadow_light_threshold", 1e-3)
         self._render_diffuse_color = config.get_bool("render_diffuse_color", False)
         self._render_roughness = config.get_bool("render_roughness", False)
         self._render_metalness = config.get_bool("render_metalness", False)
