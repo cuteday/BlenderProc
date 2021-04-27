@@ -92,7 +92,7 @@ class CuteRendererUtility:
 
     @staticmethod
     def enable_lighting_pass_output(output_dir, file_prefix="lighting_", output_key="lighting",
-            enabled_passes=["DiffDir", "DiffInd", "GlossDir", "GlossInd"], file_format='PNG'):
+            enabled_passes=["DiffDir", "DiffInd", "GlossDir", "GlossInd"], file_format='PNG', depth=32):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
@@ -121,8 +121,10 @@ class CuteRendererUtility:
             output_file.base_path = output_dir
             output_file.format.file_format = "PNG"
             if 'exr' in file_format.lower():
+                assert depth in [16, 32]
                 output_file.format.file_format = "OPEN_EXR"
-                output_file.format.color_depth = '16'
+                # We assume the radiance value range from [0., 100.]
+                output_file.format.color_depth = str(depth)
             file_name = "{}{}_".format(file_prefix, p.lower())
             output_file.file_slots.values()[0].path = file_name
             links.new(final_output, output_file.inputs['Image'])
@@ -157,7 +159,7 @@ class CuteRendererUtility:
         })
 
     @staticmethod
-    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG'):
+    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG', depth=32):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
@@ -171,8 +173,9 @@ class CuteRendererUtility:
         output_file.base_path = output_dir
         output_file.format.file_format = "PNG"
         if 'exr' in file_format.lower():
+            assert depth in [16, 32]
             output_file.format.file_format = "OPEN_EXR"
-            output_file.format.color_depth = '16'
+            output_file.format.color_depth = str(depth)
         output_file.file_slots.values()[0].path = file_prefix
         links.new(final_output, output_file.inputs['Image'])
         
@@ -232,15 +235,15 @@ class CuteRendererUtility:
             y_center = (y_max + y_min) / 2
             z_center = min(zs)
 
-            x_corrected = x_max * 0.75 + x_min * 0.25
-            y_corrected = y_max * 0.75 + y_min * 0.25
+            x_corrected = x_max * 0.65 + x_min * 0.35
+            y_corrected = y_max * 0.65 + y_min * 0.35
 
             area = (x_max - x_min) * (y_max - y_min)
             #area = calc_object_surface_area(ceiling, flat=True)
             if area < 1.0: return None
 
-            #radius = 0.0
-            radius = determine_light_radius(area)
+            radius = 0.25
+            #radius = determine_light_radius(area)
             energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=60, clamp_max=350.)
             return [[x_corrected, y_corrected, z_center - radius], energy, radius]
 
