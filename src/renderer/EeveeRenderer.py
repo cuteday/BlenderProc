@@ -81,6 +81,6 @@ class EeveeRenderer(RendererInterface):
 
         # revert blender context to previous state
         # bpy.ops.object.delete()   # delete the ceiling area light
-        # bpy.context.scene.render.engine = 'CYCLES'
+        bpy.context.scene.render.engine = 'CYCLES'
 
 

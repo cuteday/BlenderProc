@@ -219,7 +219,18 @@ class RendererInterface(Module):
             use extra function to avoid consequent merging issues with upstream
         """
         if self.config.get_bool("enable_point_light", False):
-          CuteRendererUtility.enable_point_light(base_light_energy=120)
+          CuteRendererUtility.enable_point_light(
+              self.config.get_bool("enable_shadow_map", True)
+          )
+
+        if self.config.get_bool("render_shadow_map", False):
+            CuteRendererUtility.enable_shadow_map_output(
+                self._determine_output_dir(),
+                self.config.get_string("shadow_map_output_file_prefix", "shadow_"),
+                self.config.get_string("shadow_map_output_key", "shadow"),
+                self.config.get_string("shadow_map_output_format", "PNG"),
+                self.config.get_int("shadow_map_output_depth", 32)
+            )
 
         if self.config.get_bool("render_noisy_image", False):
             CuteRendererUtility.enable_noisy_image_output(
@@ -227,6 +238,7 @@ class RendererInterface(Module):
                 self.config.get_string("noisy_image_output_file_prefix", "noisy_"),
                 self.config.get_string("noisy_image_output_key", "noisy"),
                 self.config.get_string("noisy_image_output_format", "PNG"),
+                self.config.get_int("noisy_image_output_depth", 32)
             )
 
         if self.config.get_bool("render_diffuse_color", False):
@@ -249,7 +261,8 @@ class RendererInterface(Module):
                 self.config.get_string("lighting_pass_output_file_prefix", "lighting_"),
                 self.config.get_string("lighting_pass_output_key", "lighting"),
                 self.config.get_list("lighting_pass_enabled", ["DiffDir", "DiffInd", "GlossDir", "GlossInd"]),
-                self.config.get_string("lighting_pass_output_format", "PNG")
+                self.config.get_string("lighting_pass_output_format", "PNG"),
+                self.config.get_int("lighting_pass_output_depth", 32)
             )
 
         
