@@ -224,6 +224,15 @@ class RendererInterface(Module):
         if self.config.get_bool("disable_background_emission", False):
             CuteRendererUtility.set_background_emission(0.0)
 
+        if self.config.get_bool("render_shadow_map", False):
+            CuteRendererUtility.enable_shadow_map_output(
+                self._determine_output_dir(),
+                self.config.get_string("shadow_map_output_file_prefix", "shadow_"),
+                self.config.get_string("shadow_map_output_key", "shadow"),
+                self.config.get_string("shadow_map_output_format", "PNG"),
+                self.config.get_int("shadow_map_output_depth", 32)
+            )
+
         if self.config.get_bool("render_noisy_image", False):
             CuteRendererUtility.enable_noisy_image_output(
                 self._determine_output_dir(),
