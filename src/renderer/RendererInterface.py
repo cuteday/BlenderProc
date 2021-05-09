@@ -219,7 +219,10 @@ class RendererInterface(Module):
             use extra function to avoid consequent merging issues with upstream
         """
         if self.config.get_bool("enable_point_light", False):
-          CuteRendererUtility.enable_point_light(base_light_energy=120)
+            CuteRendererUtility.enable_point_light(base_light_energy=120)
+
+        if self.config.get_bool("disable_background_emission", False):
+            CuteRendererUtility.set_background_emission(0.0)
 
         if self.config.get_bool("render_noisy_image", False):
             CuteRendererUtility.enable_noisy_image_output(

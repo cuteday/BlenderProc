@@ -157,6 +157,10 @@ class CuteRendererUtility:
         })
 
     @staticmethod
+    def set_background_emission(value=0.00):
+        bpy.data.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = [value, value, value, 1.0]
+
+    @staticmethod
     def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG'):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
