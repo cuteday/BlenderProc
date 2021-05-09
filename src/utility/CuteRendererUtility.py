@@ -92,7 +92,7 @@ class CuteRendererUtility:
 
     @staticmethod
     def enable_lighting_pass_output(output_dir, file_prefix="lighting_", output_key="lighting",
-            enabled_passes=["DiffDir", "DiffInd", "GlossDir", "GlossInd"], file_format='PNG'):
+            enabled_passes=["DiffDir", "DiffInd", "GlossDir", "GlossInd"], file_format='PNG', depth=32):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
@@ -121,8 +121,10 @@ class CuteRendererUtility:
             output_file.base_path = output_dir
             output_file.format.file_format = "PNG"
             if 'exr' in file_format.lower():
+                assert depth in [16, 32]
                 output_file.format.file_format = "OPEN_EXR"
-                output_file.format.color_depth = '16'
+                # We assume the radiance value range from [0., 100.]
+                output_file.format.color_depth = str(depth)
             file_name = "{}{}_".format(file_prefix, p.lower())
             output_file.file_slots.values()[0].path = file_name
             links.new(final_output, output_file.inputs['Image'])
@@ -157,7 +159,7 @@ class CuteRendererUtility:
         })
 
     @staticmethod
-    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG'):
+    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG', depth=32):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
@@ -171,8 +173,9 @@ class CuteRendererUtility:
         output_file.base_path = output_dir
         output_file.format.file_format = "PNG"
         if 'exr' in file_format.lower():
+            assert depth in [16, 32]
             output_file.format.file_format = "OPEN_EXR"
-            output_file.format.color_depth = '16'
+            output_file.format.color_depth = str(depth)
         output_file.file_slots.values()[0].path = file_prefix
         links.new(final_output, output_file.inputs['Image'])
         
@@ -183,7 +186,35 @@ class CuteRendererUtility:
         })
 
     @staticmethod
-    def enable_point_light(base_light_energy = 120):
+    def enable_shadow_map_output(output_dir, file_prefix="shadow_", output_key="shadow", file_format='PNG', depth=32):
+        ''' This pass is in Eevee rendering only. '''
+        bpy.context.scene.render.use_compositing = True
+        bpy.context.scene.use_nodes = True
+        tree = bpy.context.scene.node_tree
+        links = tree.links
+
+        bpy.context.view_layer.use_pass_shadow = True
+        render_layer_node = Utility.get_the_one_node_with_type(tree.nodes, 'CompositorNodeRLayers')
+        final_output = render_layer_node.outputs["Shadow"]
+
+        output_file = tree.nodes.new('CompositorNodeOutputFile')
+        output_file.base_path = output_dir
+        output_file.format.file_format = "PNG"
+        if 'exr' in file_format.lower():
+            assert depth in [16, 32]
+            output_file.format.file_format = "OPEN_EXR"
+            output_file.format.color_depth = str(depth)
+        output_file.file_slots.values()[0].path = file_prefix
+        links.new(final_output, output_file.inputs['Image'])
+        
+        Utility.add_output_entry({
+            "key": output_key,
+            "path": os.path.join(output_dir, file_prefix) + "%04d" + ".png",
+            "version": "2.0.0"
+        })
+
+    @staticmethod
+    def enable_point_light(shadow_map = True):
         """
             this randomly puts point light sources slightly below the ceiling
             
@@ -232,40 +263,17 @@ class CuteRendererUtility:
             y_center = (y_max + y_min) / 2
             z_center = min(zs)
 
-            x_corrected = x_max * 0.75 + x_min * 0.25
-            y_corrected = y_max * 0.75 + y_min * 0.25
+            x_corrected = x_max * 0.65 + x_min * 0.35
+            y_corrected = y_max * 0.65 + y_min * 0.35
 
             area = (x_max - x_min) * (y_max - y_min)
             #area = calc_object_surface_area(ceiling, flat=True)
             if area < 1.0: return None
 
-            #radius = 0.0
-            radius = determine_light_radius(area)
+            radius = 0.25
+            #radius = determine_light_radius(area)
             energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=60, clamp_max=350.)
             return [[x_corrected, y_corrected, z_center - radius], energy, radius]
-
-        # def add_light_triangles(ceiling):
-        #     # Pros:
-        #     #       more stable light when in a room with a big, not-rectangular ceiling
-        #     # Cons:
-        #     #       for probably more lights per room, the shadow mapping may be more inaccurate
-        #     #       more light sources bring more computational cost
-        #     total_area = calc_object_surface_area(ceiling, flat=True)
-        #     if total_area < 1.0: return 
-
-        #     # we discard ceiling faces which is too small or not flat (parallel to the floor xy-plane)
-        #     triangles = [tri for tri in ceiling.data.polygons if tri.area >= 1.0 and is_flat_triangle(tri, ceiling)]
-        #     for iface, face in enumerate(triangles):
-        #         if iface % 2 != 0:  # a point light for 2 triangle faces
-        #             continue
-        #         area = face.area
-        #         center = face.center
-        #         if iface < len(triangles) - 1:
-        #             area += triangles[iface + 1].area
-        #             # center = (center + triangles[iface + 1].center) / 2
-
-        #         energy = determine_light_energy(area, base_energy=100.0, base_area=10.0, area_factor=8.0, clamp_min=35, clamp_max=450)
-        #         ((center.x, center.y, center.z-0.20), energy, 0.25)
 
         ceilings = [obj for obj in bpy.data.objects if "ceiling" in obj.name.lower()]
         if len(ceilings) == 0:
