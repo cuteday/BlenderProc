@@ -220,7 +220,8 @@ class RendererInterface(Module):
         """
         if self.config.get_bool("enable_point_light", False):
             CuteRendererUtility.enable_point_light(
-                self.config.get_bool("enable_shadow_map", True)
+                self.config.get_bool("enable_shadow_map", True), 
+                self.config.get_bool("randomize_light_color", False),
             )
 
         if self.config.get_bool("disable_background_emission", False):

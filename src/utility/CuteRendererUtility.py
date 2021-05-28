@@ -1,4 +1,5 @@
 import os
+import random
 
 import bpy
 
@@ -163,7 +164,7 @@ class CuteRendererUtility:
         bpy.data.worlds['World'].node_tree.nodes['Background'].inputs[0].default_value = [value, value, value, 1.0]
 
     @staticmethod
-    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG'):
+    def enable_noisy_image_output(output_dir, file_prefix="noisy_", output_key="noisy", file_format='PNG', depth:int=32):
         bpy.context.scene.render.use_compositing = True
         bpy.context.scene.use_nodes = True
         tree = bpy.context.scene.node_tree
@@ -218,7 +219,7 @@ class CuteRendererUtility:
         })
 
     @staticmethod
-    def enable_point_light(shadow_map = True):
+    def enable_point_light(shadow_map = True, randomize_color = False):
         """
             this randomly puts point light sources slightly below the ceiling
             
@@ -308,6 +309,10 @@ class CuteRendererUtility:
             light = bpy.context.object.data
             light.shadow_soft_size = vlight[2]
             light.energy = vlight[1]
+            if randomize_color:
+                light.color = [0.5 + random.random() * 0.5, 
+                            0.5 + random.random() * 0.5,
+                            0.5 + random.random() * 0.5]
             # If we want to render direct lighting with EEVEE + shadow mapping, this parameters should be carefully tuned
             light.use_shadow = True
             light.shadow_buffer_clip_start = 0.50
