@@ -219,7 +219,7 @@ class CuteRendererUtility:
         })
 
     @staticmethod
-    def enable_point_light(shadow_map = True, randomize_color = False):
+    def enable_point_light(shadow_map = True, radius = 0.25, randomize_color = False):
         """
             this randomly puts point light sources slightly below the ceiling
             
@@ -275,7 +275,6 @@ class CuteRendererUtility:
             #area = calc_object_surface_area(ceiling, flat=True)
             if area < 1.0: return None
 
-            radius = 0.25
             #radius = determine_light_radius(area)
             energy = determine_light_energy(area, base_energy=200.0, base_area=25.0, area_factor=8.0, clamp_min=60, clamp_max=350.)
             return [[x_corrected, y_corrected, z_center - radius], energy, radius]

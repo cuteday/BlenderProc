@@ -271,7 +271,7 @@ if not os.path.exists(temp_dir):
 
 
 if not args.batch_process:
-    p = subprocess.Popen([blender_run_path, "--background", "--python-exit-code", "2", "--python", path_src_run, "--", args.config, temp_dir] + args.args,
+    p = subprocess.Popen(["nice", "-n5", blender_run_path, "--background", "--python-exit-code", "2", "--python", path_src_run, "--", args.config, temp_dir] + args.args,
                          env=dict(os.environ, PYTHONPATH=""), cwd=repo_root_directory)
 else:  # Pass the index file path containing placeholder args for all input combinations (cam, house, output path)
     p = subprocess.Popen([blender_run_path, "--background", "--python-exit-code", "2", "--python", path_src_run, "--",  args.config, temp_dir, "--batch-process", args.batch_process],
