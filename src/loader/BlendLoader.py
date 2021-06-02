@@ -6,7 +6,6 @@ import bpy
 from src.loader.LoaderInterface import LoaderInterface
 from src.utility.Utility import Utility
 
-
 class BlendLoader(LoaderInterface):
     """
     Loads entities (everything that can be stored in a .blend file's folders, see Blender's documentation for
@@ -98,3 +97,11 @@ class BlendLoader(LoaderInterface):
                                 "for finding your parameter name: " + str(dir(data_from)))
         newly_loaded_objects = list(set(bpy.context.scene.objects) - previously_loaded_objects)
         self._set_properties(newly_loaded_objects)
+
+        if bpy.context.scene.camera is None:
+          from src.utility.CameraUtility import CameraUtility
+          cam = bpy.data.objects['Camera']
+          bpy.context.scene.camera = cam
+          bpy.context.scene.render.resolution_x = 384
+          bpy.context.scene.render.resolution_y = 256
+

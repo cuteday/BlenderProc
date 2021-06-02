@@ -406,7 +406,8 @@ class RendererUtility:
             })
 
         bpy.context.scene.render.filepath = os.path.join(output_dir, file_prefix)
-
+        
+        bpy.ops.render.render(animation=True, write_still=True)
         # Skip if there is nothing to render
         if bpy.context.scene.frame_end != bpy.context.scene.frame_start:
             if len(get_all_mesh_objects()) == 0:

@@ -57,6 +57,7 @@ class CuteRendererUtility:
             aov_output.name = 'roughness'
 
             principled_bsdf = material_nodes.get('Principled BSDF')
+            if principled_bsdf is None: principled_bsdf = material_nodes.get('Diffuse BSDF')
             assert principled_bsdf is not None
             
             roughness_socket = principled_bsdf.inputs['Roughness']

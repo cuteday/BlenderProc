@@ -95,14 +95,14 @@ class Initializer(Module):
         world.color[:3] = self.config.get_list("horizon_color", [0.535, 0.633, 0.608])
 
         # Create the camera
-        cam = bpy.data.cameras.new("Camera")
-        cam_ob = bpy.data.objects.new("Camera", cam)
-        bpy.context.scene.collection.objects.link(cam_ob)
-        bpy.context.scene.camera = cam_ob
+        # cam = bpy.data.cameras.new("Camera")
+        # cam_ob = bpy.data.objects.new("Camera", cam)
+        # bpy.context.scene.collection.objects.link(cam_ob)
+        # bpy.context.scene.camera = cam_ob
 
         # Set default intrinsics
-        CameraUtility.set_intrinsics_from_blender_params(DefaultConfig.fov, DefaultConfig.resolution_x, DefaultConfig.resolution_y, DefaultConfig.clip_start, DefaultConfig.clip_end, DefaultConfig.pixel_aspect_x, DefaultConfig.pixel_aspect_y, DefaultConfig.shift_x, DefaultConfig.shift_y, "FOV")
-        CameraUtility.set_stereo_parameters(DefaultConfig.stereo_convergence_mode, DefaultConfig.stereo_convergence_distance, DefaultConfig.stereo_interocular_distance)
+        # CameraUtility.set_intrinsics_from_blender_params(DefaultConfig.fov, DefaultConfig.resolution_x, DefaultConfig.resolution_y, DefaultConfig.clip_start, DefaultConfig.clip_end, DefaultConfig.pixel_aspect_x, DefaultConfig.pixel_aspect_y, DefaultConfig.shift_x, DefaultConfig.shift_y, "FOV")
+        # CameraUtility.set_stereo_parameters(DefaultConfig.stereo_convergence_mode, DefaultConfig.stereo_convergence_distance, DefaultConfig.stereo_interocular_distance)
 
         random_seed = os.getenv("BLENDER_PROC_RANDOM_SEED")
         if random_seed:
